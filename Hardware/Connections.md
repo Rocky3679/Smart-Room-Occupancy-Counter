@@ -1,45 +1,53 @@
 # Hardware Connections
 
-## Components
+## 1. Overview
 
-| Component | Quantity |
-|-----------|---------:|
-| Arduino UNO | 1 |
-| IR Sensor | 2 |
-| OLED Display (SSD1306 I2C) | 1 |
-| Relay Module | 1 |
-| COB LED | 1 |
-| 220 Ω Resistor | 1 |
-| 10 kΩ Resistor | 1 |
+This document describes the electrical connections used in the Smart Room Occupancy Counter project.
+
+The system consists of an Arduino UNO, two IR sensors, an SSD1306 OLED display, a relay module, and a COB LED.
 
 ---
 
-# Pin Connections
+# 2. Pin Connection Table
 
-## IR Sensor 1 (Entry)
+| Arduino Pin | Connected Device | Function |
+|-------------|------------------|----------|
+| D2 | IR Sensor A (OUT) | Entry Detection |
+| D3 | IR Sensor B (OUT) | Exit Detection |
+| D8 | Relay Module (IN) | Light Control |
+| A4 | OLED Display (SDA) | I2C Data |
+| A5 | OLED Display (SCL) | I2C Clock |
+| 5V | IR Sensors, OLED, Relay | Power Supply |
+| GND | All Components | Common Ground |
 
-| IR Sensor | Arduino UNO |
+---
+
+# 3. IR Sensor Connections
+
+## IR Sensor A
+
+| Pin | Connection |
+|------|------------|
+| VCC | Arduino 5V |
+| GND | Arduino GND |
+| OUT | Arduino D2 |
+
+---
+
+## IR Sensor B
+
+| Pin | Connection |
+|------|------------|
+| VCC | Arduino 5V |
+| GND | Arduino GND |
+| OUT | Arduino D3 |
+
+---
+
+# 4. OLED Display Connections
+
+| OLED Pin | Arduino Pin |
 |-----------|-------------|
-| VCC | 5V |
-| GND | GND |
-| OUT | D2 |
-
----
-
-## IR Sensor 2 (Exit)
-
-| IR Sensor | Arduino UNO |
-|-----------|-------------|
-| VCC | 5V |
-| GND | GND |
-| OUT | D3 |
-
----
-
-## OLED Display (I2C)
-
-| OLED | Arduino UNO |
-|------|-------------|
 | VCC | 5V |
 | GND | GND |
 | SDA | A4 |
@@ -47,52 +55,44 @@
 
 ---
 
-## Relay Module
+# 5. Relay Module Connections
 
-| Relay | Arduino UNO |
-|-------|-------------|
+| Relay Pin | Arduino Pin |
+|------------|-------------|
 | VCC | 5V |
 | GND | GND |
 | IN | D8 |
 
 ---
 
-## COB LED
+# 6. COB LED Connections
 
-The COB LED is powered through the relay module using an external supply.
+The COB LED is connected through the relay module.
 
-The Arduino controls only the relay input.
+When the relay is energized, the LED turns ON.
 
----
-
-# Pin Summary
-
-| Arduino Pin | Connected Device |
-|-------------|------------------|
-| D2 | IR Sensor A |
-| D3 | IR Sensor B |
-| D8 | Relay Module |
-| A4 | OLED SDA |
-| A5 | OLED SCL |
+When the relay is de-energized, the LED turns OFF.
 
 ---
 
-# System Flow
+# 7. Power Supply
 
-IR Sensors
+The complete system operates from the Arduino UNO 5 V supply.
 
-↓
+Ensure all modules share a common ground for reliable operation.
 
-Arduino UNO
+---
 
-↓
+# 8. Wiring Notes
 
-Occupancy Logic
+- Verify all wiring before powering the system.
+- Keep sensor wires short to minimize electrical noise.
+- Align both IR sensors correctly for accurate detection.
+- Check the I2C address of the OLED display (typically 0x3C).
+- Ensure the relay module is compatible with 5 V logic.
 
-↓
+---
 
-OLED Display + Relay
+# 9. Summary
 
-↓
-
-Room Light
+Proper wiring is essential for reliable occupancy detection and automatic lighting control. Incorrect sensor connections or poor alignment may result in inaccurate occupancy counting.

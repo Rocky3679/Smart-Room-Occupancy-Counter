@@ -1,24 +1,237 @@
-# Field Engineering Troubleshooting Manual
+# Troubleshooting Guide
 
-This diagnostic runtime runbook is designed to help commissioning and maintenance technicians rapidly identify and resolve anomalies on the Smart Room Occupancy Counter deployment.
+## 1. Introduction
 
----
-
-## 1. Diagnostic Matrix (Fault Isolation)
-
-| Symptom / Fault Observed | Root Cause Analysis (RCA) | Corrective Action Protocol |
-| :--- | :--- | :--- |
-| **OLED Panel Remains Blank / No HMI Graphics Output** | 1. Missing or loose physical I2C connection wires.<br>2. Incorrect peripheral I2C hardware address configured in software. | 1. Verify terminal tight-points on SCL/SDA lines.<br>2. Run an I2C address scanner utility to confirm if the address matches `0x3C`. |
-| **System Repeatedly Fails to Log Entry / Exit Movements** | 1. Sensor cross-distance spacing exceeds the normal step velocity profiling bounds.<br>2. Hardware jitter or optical bounce breaking logic. | 1. [cite_start]Readjust the physical hardware distance between Sensor A and Sensor B to exactly 5 cm apart[cite: 52].<br>2. Increase the internal software variable `T_DEBOUNCE_MS` marginally. |
-| **The Population Count Increments on Exit (Reverse Logic)** | [cite_start]The directional field placement orientation of Sensor A and Sensor B has been swapped relative to the entry frame profile[cite: 15]. | Swap the software input pin mappings for `PIN_SENSOR_A` and `PIN_SENSOR_B` inside the firmware source configuration header. |
-| **Count Sticks at 1 or Stalls Indefinitely in Loop** | An object blocked one sensor axis and backed out, or a sensor lens is dirty, triggering a partial sequence hang. | Wait 3000 ms for the automated internal sequencer watchdog timer to run down, which will flush the registers back to IDLE automatically. |
-| **The Load Relay Module Chills / Does Not Switch On** | 1. Control loop logic output signal tracking line failure.<br>2. Insufficient driver current output on the microcontroller pin. | 1. Check if the onboard system indicator LED matches the status change logic.<br>2. Power the relay coil module from an isolated, external auxiliary power supply rail. |
+This document lists common issues that may occur during the assembly, programming, and operation of the Smart Room Occupancy Counter, along with their possible causes and recommended solutions.
 
 ---
 
-## 2. Serial Telemetry System Auditing
+# 2. Common Issues
 
-Technicians can monitor performance directly by opening a terminal monitor at a baud rate of `115200 bps`. The system outputs standard JSON formatted data packets every 200 ms:
+| Problem | Possible Cause | Solution |
+|----------|----------------|----------|
+| Arduino not detected | Faulty USB cable or incorrect COM port | Check the USB cable and select the correct COM port in the Arduino IDE |
+| Program upload failed | Incorrect board selection | Select **Arduino UNO** under Tools → Board |
+| OLED display remains blank | Incorrect wiring or wrong I2C address | Verify SDA, SCL, VCC, GND connections and confirm the I2C address (usually 0x3C) |
+| Relay does not switch | Incorrect wiring or faulty relay module | Verify relay connections and test the relay independently |
+| COB LED does not turn ON | Incorrect relay wiring or power supply issue | Check the LED wiring and relay output connections |
+| Occupancy count increases incorrectly | Improper sensor alignment | Align both IR sensors correctly and maintain proper spacing |
+| Occupancy count decreases incorrectly | Incorrect sensor sequence | Verify that Sensor A detects entry first and Sensor B detects exit first |
+| Occupancy count becomes inaccurate | Multiple people crossing simultaneously | Allow one person to pass through the doorway at a time |
+| Sensor triggers continuously | Ambient light interference or sensor sensitivity | Adjust the IR sensor sensitivity using the onboard potentiometer |
+| Arduino resets unexpectedly | Insufficient power supply | Use a stable 5 V power source |
 
-```json
-{"telemetry":{"occupancy":3,"relay_state":1,"fsm_code":0}}
+---
+
+# 3. Debugging Procedure
+
+If the system is not operating correctly:
+
+1. Verify all hardware connections.
+2. Check the Arduino power LED.
+3. Confirm that the correct board and COM port are selected.
+4. Upload the program again.
+5. Open the Serial Monitor for debugging messages.
+6. Test each IR sensor individually.
+7. Verify OLED initialization.
+8. Test relay operation separately.
+9. Recheck sensor alignment.
+10. Repeat the complete system test.
+
+---
+
+# 4. Sensor Calibration
+
+For reliable operation:
+
+- Position both IR sensors at the same height.
+- Maintain a spacing of approximately **5–10 cm**.
+- Adjust sensor sensitivity using the onboard potentiometer.
+- Avoid direct sunlight or strong external infrared sources.
+- Ensure the doorway allows only one person to pass at a time.
+
+---
+
+# 5. Relay Testing
+
+To verify relay operation:
+
+- Apply power to the Arduino.
+- Trigger an entry event.
+- Listen for the relay click.
+- Confirm that the LED turns ON.
+- Trigger exit events until the occupancy count reaches zero.
+- Verify that the relay switches OFF.
+
+---
+
+# 6. OLED Display Testing
+
+Check the following:
+
+- OLED powers ON.
+- Display initializes correctly.
+- Occupancy count updates after every valid entry and exit.
+- No display flickering occurs during operation.
+
+---
+
+# 7. Maintenance
+
+To maintain reliable operation:
+
+- Clean the IR sensor lenses periodically.
+- Inspect jumper wire connections.
+- Secure loose components.
+- Re-upload firmware if required.
+- Replace damaged hardware modules when necessary.
+
+---
+
+# 8. Frequently Asked Questions (FAQ)
+
+### Q1. Why is the occupancy count incorrect?
+
+The most common reasons are improper sensor alignment, incorrect wiring, or multiple people crossing simultaneously.
+
+---
+
+### Q2. Why does the relay not switch?
+
+Check the relay wiring, Arduino pin assignment, and ensure the occupancy count is greater than zero.
+
+---
+
+### Q3. Why is the OLED display blank?
+
+Verify the power connections, SDA/SCL wiring, and confirm the OLED I2C address.
+
+---
+
+### Q4. Can this project be expanded for IoT?
+
+Yes. The Arduino UNO can be replaced with an ESP32 to enable Wi-Fi connectivity, cloud monitoring, MQTT communication, and mobile application integration.
+
+---
+
+# 9. Conclusion
+
+Most issues encountered during development can be resolved by checking wiring, verifying software configuration, and properly calibrating the IR sensors. Following the installation and testing procedures ensures reliable occupancy detection and automatic lighting control.# Troubleshooting Guide
+
+## 1. Introduction
+
+This document lists common issues that may occur during the assembly, programming, and operation of the Smart Room Occupancy Counter, along with their possible causes and recommended solutions.
+
+---
+
+# 2. Common Issues
+
+| Problem | Possible Cause | Solution |
+|----------|----------------|----------|
+| Arduino not detected | Faulty USB cable or incorrect COM port | Check the USB cable and select the correct COM port in the Arduino IDE |
+| Program upload failed | Incorrect board selection | Select **Arduino UNO** under Tools → Board |
+| OLED display remains blank | Incorrect wiring or wrong I2C address | Verify SDA, SCL, VCC, GND connections and confirm the I2C address (usually 0x3C) |
+| Relay does not switch | Incorrect wiring or faulty relay module | Verify relay connections and test the relay independently |
+| COB LED does not turn ON | Incorrect relay wiring or power supply issue | Check the LED wiring and relay output connections |
+| Occupancy count increases incorrectly | Improper sensor alignment | Align both IR sensors correctly and maintain proper spacing |
+| Occupancy count decreases incorrectly | Incorrect sensor sequence | Verify that Sensor A detects entry first and Sensor B detects exit first |
+| Occupancy count becomes inaccurate | Multiple people crossing simultaneously | Allow one person to pass through the doorway at a time |
+| Sensor triggers continuously | Ambient light interference or sensor sensitivity | Adjust the IR sensor sensitivity using the onboard potentiometer |
+| Arduino resets unexpectedly | Insufficient power supply | Use a stable 5 V power source |
+
+---
+
+# 3. Debugging Procedure
+
+If the system is not operating correctly:
+
+1. Verify all hardware connections.
+2. Check the Arduino power LED.
+3. Confirm that the correct board and COM port are selected.
+4. Upload the program again.
+5. Open the Serial Monitor for debugging messages.
+6. Test each IR sensor individually.
+7. Verify OLED initialization.
+8. Test relay operation separately.
+9. Recheck sensor alignment.
+10. Repeat the complete system test.
+
+---
+
+# 4. Sensor Calibration
+
+For reliable operation:
+
+- Position both IR sensors at the same height.
+- Maintain a spacing of approximately **5–10 cm**.
+- Adjust sensor sensitivity using the onboard potentiometer.
+- Avoid direct sunlight or strong external infrared sources.
+- Ensure the doorway allows only one person to pass at a time.
+
+---
+
+# 5. Relay Testing
+
+To verify relay operation:
+
+- Apply power to the Arduino.
+- Trigger an entry event.
+- Listen for the relay click.
+- Confirm that the LED turns ON.
+- Trigger exit events until the occupancy count reaches zero.
+- Verify that the relay switches OFF.
+
+---
+
+# 6. OLED Display Testing
+
+Check the following:
+
+- OLED powers ON.
+- Display initializes correctly.
+- Occupancy count updates after every valid entry and exit.
+- No display flickering occurs during operation.
+
+---
+
+# 7. Maintenance
+
+To maintain reliable operation:
+
+- Clean the IR sensor lenses periodically.
+- Inspect jumper wire connections.
+- Secure loose components.
+- Re-upload firmware if required.
+- Replace damaged hardware modules when necessary.
+
+---
+
+# 8. Frequently Asked Questions (FAQ)
+
+### Q1. Why is the occupancy count incorrect?
+
+The most common reasons are improper sensor alignment, incorrect wiring, or multiple people crossing simultaneously.
+
+---
+
+### Q2. Why does the relay not switch?
+
+Check the relay wiring, Arduino pin assignment, and ensure the occupancy count is greater than zero.
+
+---
+
+### Q3. Why is the OLED display blank?
+
+Verify the power connections, SDA/SCL wiring, and confirm the OLED I2C address.
+
+---
+
+### Q4. Can this project be expanded for IoT?
+
+Yes. The Arduino UNO can be replaced with an ESP32 to enable Wi-Fi connectivity, cloud monitoring, MQTT communication, and mobile application integration.
+
+---
+
+# 9. Conclusion
+
+Most issues encountered during development can be resolved by checking wiring, verifying software configuration, and properly calibrating the IR sensors. Following the installation and testing procedures ensures reliable occupancy detection and automatic lighting control.
