@@ -130,7 +130,7 @@ Front view of the implemented prototype highlighting the sensor placement, OLED 
 
 ### OLED Output
 
-![OLED Output](Images/OLED_Output.jpg)
+![OLED Output](Images/OLED_Output.png)
 
 OLED display showing the system interface with the current occupancy count and light status during project operation.
 ---
